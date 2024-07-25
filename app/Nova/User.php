@@ -59,8 +59,13 @@ class User extends Resource
                 ->creationRules('unique:users,email')
                 ->updateRules('unique:users,email,{{resourceId}}'),
 
+            // Returns 0, as expected
             Number::make('test', 'notifications_count'),
-            Number::make('tester', 'notifications_count', fn () => $this->notifications_count ?: null),
+
+            // Returns -, because the value is null
+            Number::make('tester', fn () => $this->notifications_count ?: null),
+
+            // returns 0, but we expect -
             Number::make('Bugged Value', 'notifications_count')->nullable(values: [0, '']),
 
             Password::make('Password')
