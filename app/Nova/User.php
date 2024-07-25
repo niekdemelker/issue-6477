@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rules;
 use Laravel\Nova\Fields\Gravatar;
 use Laravel\Nova\Fields\ID;
+use Laravel\Nova\Fields\Number;
 use Laravel\Nova\Fields\Password;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Http\Requests\NovaRequest;
@@ -58,6 +59,10 @@ class User extends Resource
                 ->creationRules('unique:users,email')
                 ->updateRules('unique:users,email,{{resourceId}}'),
 
+            Number::make('test', 'notifications_count'),
+            Number::make('tester', 'notifications_count', fn () => $this->notifications_count ?: null),
+            Number::make('Bugged Value', 'notifications_count')->nullable(values: [0, '']),
+
             Password::make('Password')
                 ->onlyOnForms()
                 ->creationRules('required', Rules\Password::defaults())
@@ -107,5 +112,10 @@ class User extends Resource
     public function actions(NovaRequest $request)
     {
         return [];
+    }
+
+    public static function indexQuery(NovaRequest $request, $query)
+    {
+        return $query->withCount('notifications');
     }
 }
